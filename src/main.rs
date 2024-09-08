@@ -26,9 +26,9 @@ fn app() -> Element {
                 white_cell_color: "#ffd700",
                 black_cell_color: "#a52a2a",
                 coordinates_color: "#0022ff",
+                hide_coordinates: true,
             }
             ChessBoard {
-
             }
         }
     )
