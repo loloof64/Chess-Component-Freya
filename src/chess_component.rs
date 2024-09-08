@@ -10,7 +10,8 @@ pub fn ChessBoard(
     #[props(default = "#ffdead".to_string())] white_cell_color: String,
     #[props(default = "#cd853f".to_string())] black_cell_color: String,
     #[props(default = "#ffd700".to_string())] coordinates_color: String,
-    #[props(default = false)] hide_coordinates: bool
+    #[props(default = false)] hide_coordinates: bool,
+    #[props(default = false)] reversed_orientation: bool,
 ) -> Element {
     let board_size = size.clone();
     let width = size.clone();
@@ -50,7 +51,7 @@ pub fn ChessBoard(
                         for col in 0..8 {
                             {
                             let coordinates = ["A", "B", "C", "D", "E", "F", "G", "H"];
-                            let coordinate = coordinates[col];
+                            let coordinate = if reversed_orientation {coordinates[7-col]} else {coordinates[col]};
                             rsx!(
                                     label {
                                         text_align: "center",
@@ -80,7 +81,7 @@ pub fn ChessBoard(
                         else {
                             {
                                 let coordinates = ["8", "7", "6", "5", "4", "3", "2", "1"];
-                                let coordinate = coordinates[row];
+                                let coordinate = if reversed_orientation {coordinates[7-row]} else {coordinates[row]};
                                 rsx!(
                                     rect {
                                         width: half_cell_size_str.clone(),
@@ -115,7 +116,7 @@ pub fn ChessBoard(
                         else {
                             {
                                 let coordinates = ["8", "7", "6", "5", "4", "3", "2", "1"];
-                                let coordinate = coordinates[row];
+                                let coordinate = if reversed_orientation {coordinates[7-row]} else {coordinates[row]};
                                 rsx!(
                                     rect {
                                         width: half_cell_size_str.clone(),
@@ -153,7 +154,7 @@ pub fn ChessBoard(
                         for col in 0..8 {
                             {
                             let coordinates = ["A", "B", "C", "D", "E", "F", "G", "H"];
-                            let coordinate = coordinates[col];
+                            let coordinate = if reversed_orientation {coordinates[7-col]} else {coordinates[col]};
                             rsx!(
                                     label {
                                         text_align: "center",
