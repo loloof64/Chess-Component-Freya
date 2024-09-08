@@ -21,11 +21,13 @@ fn app() -> Element {
             main_align: "center",
             cross_align: "center",
             ChessBoard {
-                background_color: "red",
-                size: "200"
+                background_color: "#808000",
+                size: "200",
+                white_cell_color: "#ffd700",
+                black_cell_color: "#a52a2a",
             }
             ChessBoard {
-                
+
             }
         }
     )
