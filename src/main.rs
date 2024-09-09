@@ -28,6 +28,7 @@ fn app() -> Element {
                 coordinates_color: "#0022ff",
                 hide_coordinates: true,
                 reversed_orientation: true,
+                start_position: "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
             }
             ChessBoard {
             

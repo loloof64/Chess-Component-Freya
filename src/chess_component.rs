@@ -12,7 +12,8 @@ pub fn ChessBoard(
     #[props(default = "#cd853f".to_string())] black_cell_color: String,
     #[props(default = "#ffd700".to_string())] coordinates_color: String,
     #[props(default = false)] hide_coordinates: bool,
-    #[props(default = false)] reversed_orientation: bool
+    #[props(default = false)] reversed_orientation: bool,
+    #[props(default =  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".to_string())] start_position: String,
 ) -> Element {
     let board_size = size.clone();
     let width = size.clone();
@@ -26,8 +27,8 @@ pub fn ChessBoard(
     let half_cell_size_str = format!("{}", half_cell_size);
     let font_size_str = format!("{}", font_size);
 
-    let position = use_signal(|| "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    let position_object = use_memo(move || Board::from_fen(position()));
+    let position = use_signal(|| start_position);
+    let position_object = use_memo(move || Board::from_fen(position().as_str()));
 
     rsx!(rect {
         width: width,
