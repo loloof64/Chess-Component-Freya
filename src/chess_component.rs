@@ -1,4 +1,5 @@
 use freya::prelude::*;
+use owlchess::{ Board, Cell as owlchessCell, Color, File, Piece, Rank };
 
 mod cell_component;
 use cell_component::Cell;
@@ -11,7 +12,7 @@ pub fn ChessBoard(
     #[props(default = "#cd853f".to_string())] black_cell_color: String,
     #[props(default = "#ffd700".to_string())] coordinates_color: String,
     #[props(default = false)] hide_coordinates: bool,
-    #[props(default = false)] reversed_orientation: bool,
+    #[props(default = false)] reversed_orientation: bool
 ) -> Element {
     let board_size = size.clone();
     let width = size.clone();
@@ -24,6 +25,9 @@ pub fn ChessBoard(
     let cell_size_str = format!("{}", cell_size);
     let half_cell_size_str = format!("{}", half_cell_size);
     let font_size_str = format!("{}", font_size);
+
+    let position = use_signal(|| "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    let position_object = use_memo(move || Board::from_fen(position()));
 
     rsx!(rect {
         width: width,
@@ -104,6 +108,10 @@ pub fn ChessBoard(
                                 size: cell_size_str.clone(),
                                 background_color: if (row + col) % 2 == 0 { white_cell_color.clone() } 
                                     else {  black_cell_color.clone() },
+                                piece_fen: match position_object() {
+                                    Ok(board) => owlchess_cell_to_fen_option(board.get2(File::from_index(col), Rank::from_index(row))),
+                                _ => None,
+                                }
                             }
                         }
                         // Right coordinates
@@ -173,4 +181,29 @@ pub fn ChessBoard(
             )
         }
     })
+}
+
+fn owlchess_cell_to_fen_option(cell: owlchessCell) -> Option<String> {
+    match cell.color() {
+        Some(Color::White) =>
+            match cell.piece() {
+                Some(Piece::Pawn) => Some("P".to_string()),
+                Some(Piece::Knight) => Some("N".to_string()),
+                Some(Piece::Bishop) => Some("B".to_string()),
+                Some(Piece::Rook) => Some("R".to_string()),
+                Some(Piece::Queen) => Some("Q".to_string()),
+                Some(Piece::King) => Some("K".to_string()),
+                _ => None,
+            }
+        _ =>
+            match cell.piece() {
+                Some(Piece::Pawn) => Some("p".to_string()),
+                Some(Piece::Knight) => Some("n".to_string()),
+                Some(Piece::Bishop) => Some("b".to_string()),
+                Some(Piece::Rook) => Some("r".to_string()),
+                Some(Piece::Queen) => Some("q".to_string()),
+                Some(Piece::King) => Some("k".to_string()),
+                _ => None,
+            }
+    }
 }
