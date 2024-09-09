@@ -24,13 +24,16 @@ pub fn ChessBoard(
     let real_size = size.area.width();
     let cell_size = real_size / 9.0;
     let half_cell_size = cell_size / 2.0;
+    let width_without_borders = cell_size * 8.0;
     let font_size = half_cell_size * 0.8;
     let cell_size_str = format!("{}", cell_size);
     let half_cell_size_str = format!("{}", half_cell_size);
+    let width_without_borders_str = format!("{}", width_without_borders);
     let font_size_str = format!("{}", font_size);
 
     let position = use_signal(|| start_position);
     let position_object = use_memo(move || Board::from_fen(position().as_str()));
+    let white_turn = use_memo(move || position_object().map(|board| board.side() == Color::White));
 
     rsx!(rect {
         width: width,
@@ -50,7 +53,7 @@ pub fn ChessBoard(
                     }
                     if hide_coordinates {
                         rect {
-                            width: cell_size_str.clone(),
+                            width: width_without_borders_str.clone(),
                             height: half_cell_size_str.clone(),
                         }
                     }
@@ -72,6 +75,39 @@ pub fn ChessBoard(
                                 )
                             }
                         }
+                    }
+                    // player turn if needed
+                    match white_turn() {
+                        Ok(white_turn) => {
+                            if (reversed_orientation && white_turn) || (!white_turn && !reversed_orientation) {
+                                rsx!(
+                                    rect {
+                                        width:half_cell_size_str.clone(),
+                                        height: half_cell_size_str.clone(),
+                                        rect {
+                                            width: "100%",
+                                            height: "100%",
+                                            background: if white_turn {"white"} else {"black"},
+                                            corner_radius: half_cell_size_str.clone(),
+                                        }
+                                    }
+                                )
+                            }
+                            else {
+                                rsx!(
+                                    rect {
+                                        width:half_cell_size_str.clone(),
+                                        height: half_cell_size_str.clone(),
+                                    }
+                                )
+                            }
+                        },
+                        _ => rsx!(
+                            rect {
+                                width:half_cell_size_str.clone(),
+                                height: half_cell_size_str.clone(),
+                            }
+                        )
                     }
                 }
                 // Central lines
@@ -160,7 +196,7 @@ pub fn ChessBoard(
                     }
                     if hide_coordinates {
                         rect {
-                            width: cell_size_str.clone(),
+                            width: width_without_borders_str.clone(),
                             height: half_cell_size_str.clone(),
                         }
                     }
@@ -182,6 +218,39 @@ pub fn ChessBoard(
                                 )
                             }
                         }
+                    }
+                    // player turn if needed
+                    match white_turn() {
+                        Ok(white_turn) => {
+                            if (reversed_orientation && !white_turn) || (white_turn && !reversed_orientation) {
+                                rsx!(
+                                    rect {
+                                        width:half_cell_size_str.clone(),
+                                        height: half_cell_size_str.clone(),
+                                        rect {
+                                            width: "100%",
+                                            height: "100%",
+                                            background: if white_turn {"white"} else {"black"},
+                                            corner_radius: half_cell_size_str.clone(),
+                                        }
+                                    }
+                                )
+                            }
+                            else {
+                                rsx!(
+                                    rect {
+                                        width:half_cell_size_str.clone(),
+                                        height: half_cell_size_str.clone(),
+                                    }
+                                )
+                            }
+                        },
+                        _ => rsx!(
+                            rect {
+                                width:half_cell_size_str.clone(),
+                                height: half_cell_size_str.clone(),
+                            }
+                        )
                     }
                 }
             )
