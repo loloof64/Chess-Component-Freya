@@ -13,7 +13,9 @@ pub fn ChessBoard(
     #[props(default = "#ffd700".to_string())] coordinates_color: String,
     #[props(default = false)] hide_coordinates: bool,
     #[props(default = false)] reversed_orientation: bool,
-    #[props(default =  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".to_string())] start_position: String,
+    #[props(
+        default = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".to_string()
+    )] start_position: String
 ) -> Element {
     let board_size = size.clone();
     let width = size.clone();
@@ -110,7 +112,10 @@ pub fn ChessBoard(
                                 background_color: if (row + col) % 2 == 0 { white_cell_color.clone() } 
                                     else {  black_cell_color.clone() },
                                 piece_fen: match position_object() {
-                                    Ok(board) => owlchess_cell_to_fen_option(board.get2(File::from_index(col), Rank::from_index(row))),
+                                    Ok(board) => owlchess_cell_to_fen_option(board.get2(
+                                        File::from_index(if reversed_orientation {7-col} else {col}),
+                                        Rank::from_index(if reversed_orientation {7-row} else {row}),
+                                    )),
                                 _ => None,
                                 }
                             }
