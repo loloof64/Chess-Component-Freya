@@ -30,6 +30,9 @@ fn app() -> Element {
                 reversed_orientation: true,
                 start_position: "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
             }
+            rect {
+                height: "50"
+            }
             ChessBoard {
             
             }
