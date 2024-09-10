@@ -1,5 +1,6 @@
 use dioxus_core::AttributeValue;
 use freya::prelude::*;
+use owlchess::{ Board, Cell as owlchessCell, Color, File, Piece, Rank };
 
 static WP: &[u8] = include_bytes!("./vectors/Chess_plt45.svg");
 static WN: &[u8] = include_bytes!("./vectors/Chess_nlt45.svg");
@@ -18,22 +19,50 @@ static BK: &[u8] = include_bytes!("./vectors/Chess_kdt45.svg");
 pub fn Cell(
     #[props(default = "300".to_string())] size: String,
     #[props(default = "rgb(90, 100, 235)".to_string())] background_color: String,
-    #[props(default = None)] piece_fen: Option<String>
+    board_memo: Memo<Option<Board>>,
+    file: u8,
+    rank: u8
 ) -> Element {
     let width = size.clone();
     let height = size.clone();
-    let image = piece_fen_to_svg(piece_fen);
+    let piece_fen = if let Some(board) = board_memo() {
+        owlchess_cell_to_fen_option(
+            board.get2(File::from_index(file as usize), Rank::from_index(rank as usize))
+        )
+    } else {
+        None
+    };
+    let image = piece_fen_to_svg(piece_fen.clone());
 
     rsx!(rect {
         width: width,
         height: height,
         background: background_color,
 
-        if let Some(svg_data) = image {
-            svg {
-                width: "100%",
-                height: "100%",
-                svg_data,
+        DropZone {
+            ondrop: move |data: String| {
+                match board_memo() {
+                    Some(board) => {
+                        println!("dragging {}", data);
+                    },
+                    _ => {}
+                }
+            },
+            if let Some(svg_data) = image {
+                rect {
+                    width: "100%",
+                    height: "100%",
+                    DragZone {
+                        data: piece_fen.expect("failed to get piece fen"),
+                        drag_element: rsx!(
+                            svg {
+                                width: "100%",
+                                height: "100%",
+                                svg_data,
+                            },
+                        ),
+                    },
+                }
             }
         }
     })
@@ -57,5 +86,30 @@ fn piece_fen_to_svg(piece_fen: Option<String>) -> Option<AttributeValue> {
         "q" => Some(static_bytes(BQ)),
         "k" => Some(static_bytes(BK)),
         _ => None,
+    }
+}
+
+fn owlchess_cell_to_fen_option(cell: owlchessCell) -> Option<String> {
+    match cell.color() {
+        Some(Color::White) =>
+            match cell.piece() {
+                Some(Piece::Pawn) => Some("P".to_string()),
+                Some(Piece::Knight) => Some("N".to_string()),
+                Some(Piece::Bishop) => Some("B".to_string()),
+                Some(Piece::Rook) => Some("R".to_string()),
+                Some(Piece::Queen) => Some("Q".to_string()),
+                Some(Piece::King) => Some("K".to_string()),
+                _ => None,
+            }
+        _ =>
+            match cell.piece() {
+                Some(Piece::Pawn) => Some("p".to_string()),
+                Some(Piece::Knight) => Some("n".to_string()),
+                Some(Piece::Bishop) => Some("b".to_string()),
+                Some(Piece::Rook) => Some("r".to_string()),
+                Some(Piece::Queen) => Some("q".to_string()),
+                Some(Piece::King) => Some("k".to_string()),
+                _ => None,
+            }
     }
 }
