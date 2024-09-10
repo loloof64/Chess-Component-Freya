@@ -32,9 +32,8 @@ pub fn ChessBoard(
     let font_size_str = format!("{}", font_size);
 
     let position = use_signal(|| start_position);
-    let position_object = use_memo(move || Board::from_fen(position().as_str()));
-    let white_turn = use_memo(move || position_object().map(|board| board.side() == Color::White));
-    let board_object = use_memo(move || position_object().ok());
+    let board = use_memo(move || Board::from_fen(position().as_str()).ok());
+    let white_turn = board.read().as_ref().map(|board| board.side() == Color::White);
 
     rsx!(rect {
         width: width,
@@ -79,8 +78,8 @@ pub fn ChessBoard(
                             }
                         }
                         // player turn if needed
-                        match white_turn() {
-                            Ok(white_turn) => {
+                        match white_turn {
+                            Some(white_turn) => {
                                 if (reversed_orientation && white_turn) || (!white_turn && !reversed_orientation) {
                                     rsx!(
                                         rect {
@@ -149,7 +148,7 @@ pub fn ChessBoard(
                                     size: cell_size_str.clone(),
                                     background_color: if (row + col) % 2 == 0 { white_cell_color.clone() } 
                                         else {  black_cell_color.clone() },
-                                    board_memo: board_object,
+                                    board,
                                     file: if reversed_orientation {7-col as u8} else {col as u8},
                                     rank: if reversed_orientation {row as u8} else {7-row as u8},
                                 }
@@ -218,8 +217,8 @@ pub fn ChessBoard(
                             }
                         }
                         // player turn if needed
-                        match white_turn() {
-                            Ok(white_turn) => {
+                        match white_turn {
+                            Some(white_turn) => {
                                 if (reversed_orientation && !white_turn) || (white_turn && !reversed_orientation) {
                                     rsx!(
                                         rect {

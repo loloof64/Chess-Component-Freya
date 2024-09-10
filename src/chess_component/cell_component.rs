@@ -19,73 +19,68 @@ static BK: &[u8] = include_bytes!("./vectors/Chess_kdt45.svg");
 pub fn Cell(
     #[props(default = "300".to_string())] size: String,
     #[props(default = "rgb(90, 100, 235)".to_string())] background_color: String,
-    board_memo: Memo<Option<Board>>,
+    board: Memo<Option<Board>>,
     file: u8,
     rank: u8
 ) -> Element {
-    let width = size.clone();
-    let height = size.clone();
-    let piece_fen = if let Some(board) = board_memo() {
+    let piece_fen = if let Some(board) = &*board.read() {
         owlchess_cell_to_fen_option(
             board.get2(File::from_index(file as usize), Rank::from_index(rank as usize))
         )
     } else {
         None
     };
-    let image = piece_fen_to_svg(piece_fen.clone());
 
-    rsx!(rect {
-        width: width,
-        height: height,
-        background: background_color,
-
+    rsx!(
         DropZone {
             ondrop: move |data: String| {
-                match board_memo() {
+                match &*board.read() {
                     Some(board) => {
-                        println!("dragging {}", data);
+                        println!("dropped {}", data);
                     },
                     _ => {}
                 }
             },
-            if let Some(svg_data) = image {
-                rect {
-                    width: "100%",
-                    height: "100%",
+            rect {
+                width: "{size}",
+                height: "{size}",
+                background: background_color,
+                if let Some(piece_fen) = piece_fen {
                     DragZone {
-                        data: piece_fen.expect("failed to get piece fen"),
+                        data: piece_fen.clone(),
                         drag_element: rsx!(
                             svg {
-                                width: "100%",
-                                height: "100%",
-                                svg_data,
+                                width: "{size}",
+                                height: "{size}",
+                                svg_data: piece_fen_to_svg(piece_fen.as_str()),
                             },
                         ),
-                    },
+                        svg {
+                            width: "100%",
+                            height: "100%",
+                            svg_data: piece_fen_to_svg(piece_fen.as_str()),
+                        },
+                    }
                 }
-            }
-        }
+         }
     })
 }
 
-fn piece_fen_to_svg(piece_fen: Option<String>) -> Option<AttributeValue> {
-    if piece_fen.is_none() {
-        return None;
-    }
-    match piece_fen.unwrap().as_str() {
-        "P" => Some(static_bytes(WP)),
-        "N" => Some(static_bytes(WN)),
-        "B" => Some(static_bytes(WB)),
-        "R" => Some(static_bytes(WR)),
-        "Q" => Some(static_bytes(WQ)),
-        "K" => Some(static_bytes(WK)),
-        "p" => Some(static_bytes(BP)),
-        "n" => Some(static_bytes(BN)),
-        "b" => Some(static_bytes(BB)),
-        "r" => Some(static_bytes(BR)),
-        "q" => Some(static_bytes(BQ)),
-        "k" => Some(static_bytes(BK)),
-        _ => None,
+fn piece_fen_to_svg(piece_fen: &str) -> AttributeValue {
+    match piece_fen {
+        "P" => static_bytes(WP),
+        "N" => static_bytes(WN),
+        "B" => static_bytes(WB),
+        "R" => static_bytes(WR),
+        "Q" => static_bytes(WQ),
+        "K" => static_bytes(WK),
+        "p" => static_bytes(BP),
+        "n" => static_bytes(BN),
+        "b" => static_bytes(BB),
+        "r" => static_bytes(BR),
+        "q" => static_bytes(BQ),
+        "k" => static_bytes(BK),
+        _ => unreachable!(),
     }
 }
 
